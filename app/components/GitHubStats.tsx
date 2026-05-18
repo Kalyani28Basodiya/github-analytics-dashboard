@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import CommitHeatmap from "./CommitHeatmap"
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip,
-    ResponsiveContainer, PieChart, Pie, Cell
+    ResponsiveContainer, PieChart, Pie
 } from "recharts"
 import Image from "next/image"
 
@@ -55,13 +55,17 @@ export default function GitHubStats({ accessToken }: { accessToken: string }) {
         )
     }
 
-    const languageData = stats?.repos.reduce((acc: any[], repo) => {
+    const languageData = (stats?.repos.reduce((acc: any[], repo) => {
         const lang = repo.language || "Unknown"
         const existing = acc.find((i) => i.name === lang)
         if (existing) existing.value++
         else acc.push({ name: lang, value: 1 })
         return acc
-    }, []) || []
+    }, []) || []).map((item: any, index: number) => ({
+        ...item,
+        fill: COLORS[index % COLORS.length],
+        stroke: COLORS[index % COLORS.length],
+    }))
 
     const barData = stats?.repos.map((r) => ({
         name: r.name.length > 10 ? r.name.slice(0, 10) + "..." : r.name,
